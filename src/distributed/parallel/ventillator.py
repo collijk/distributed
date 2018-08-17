@@ -5,6 +5,7 @@
 #
 import atexit
 import random
+import sys
 import time
 
 import zmq
@@ -30,7 +31,7 @@ class Ventilator:
         _ = input()
         print("Sending tasks to workers…")
         # The first message is "0" and signals start of batch
-        self.sink_socket.send(b'0')
+        self.sink_socket.send(bytes(f"{self.tasks_to_send}", encoding='ascii'))
 
         self.work()
 
@@ -40,19 +41,23 @@ class Ventilator:
         total_msec = 0
         for task_nbr in range(self.tasks_to_send):
             # Random workload from 1 to 100 msecs
-            workload = random.randint(1, 100)
+            workload = random.randint(1, 500)
             total_msec += workload
             self.socket.send_string(f'{workload}')
 
         print(f"Total expected cost: {total_msec} msec")
 
+        # Give zmq time to deliver
+        time.sleep(1)
+
     def shutdown(self):
         self.socket.close()
-        
+        self.sink_socket.close()
+
 
 if __name__ == "__main__":
     context = zmq.Context()
-    publisher = Publisher(context)
+    publisher = Ventilator(context, int(sys.argv[1]))
 
     atexit.register(context.destroy)
     atexit.register(publisher.shutdown)
