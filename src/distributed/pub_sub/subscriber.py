@@ -34,7 +34,7 @@ class Subscriber:
 
     def work(self, message):
         _, temperature, _ = message.split()
-        print("")
+        print(f"Zip {self.zipcode} received tempearture {float(temperature)}")
         self.total_temperature += float(temperature)
 
     def shutdown(self):

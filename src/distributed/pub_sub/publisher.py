@@ -10,6 +10,7 @@ import zmq
 
 from distributed.utilities import run_with_debugger
 
+
 class Publisher:
     address = "tcp://*:5556"
 
